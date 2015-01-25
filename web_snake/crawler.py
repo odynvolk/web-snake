@@ -21,7 +21,7 @@ headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.1 (KHTML
            'Accept': 'text/plain'}
 
 
-class WebSnake(object):
+class Crawler(object):
     def __init__(self):
         self.accessed = set()
 
