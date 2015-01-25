@@ -4,6 +4,7 @@ import urlparse
 import collections
 import ssl
 from functools import wraps
+import threading
 
 
 def ssl_wrap(func):
@@ -21,9 +22,16 @@ headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.1 (KHTML
            'Accept': 'text/plain'}
 
 
-class Crawler(object):
-    def __init__(self):
+class Crawler(threading.Thread):
+    def __init__(self, url, max_level):
+        threading.Thread.__init__(self)
         self.accessed = set()
+        self.url = url
+        self.max_level = max_level
+        self.urls = []
+
+    def run(self):
+        self.urls = self.crawl(self.url, self.max_level)
 
     def crawl(self, url, max_level):
         cleaned_url = self.clean(url)
