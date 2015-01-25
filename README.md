@@ -14,8 +14,10 @@ python setup.py install
 ## python
 
 ``` python
-from web_snake import WebSnake
+from web_snake.crawler import Crawler
 
-web_snake = WebSnake()
-links = web_snake.crawl(url='http://www.reddit.com/', max_level=1)
+crawler = Crawler(url='http://www.reddit.com/', max_level=3)
+crawler.start()
+crawler.join()
+crawler.urls
 ```
