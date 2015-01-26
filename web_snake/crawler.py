@@ -23,15 +23,17 @@ headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.1 (KHTML
 
 
 class Crawler(threading.Thread):
-    def __init__(self, url, max_level):
+    def __init__(self, queue, max_level):
         threading.Thread.__init__(self)
         self.accessed = set()
-        self.url = url
+        self.queue = queue
         self.max_level = max_level
         self.urls = []
 
     def run(self):
-        self.urls = self.crawl(self.url, self.max_level)
+        while not self.queue.empty():
+            self.urls.extend(self.crawl(self.queue.get(), self.max_level))
+            self.queue.task_done()
 
     def crawl(self, url, max_level):
         cleaned_url = self.clean(url)
