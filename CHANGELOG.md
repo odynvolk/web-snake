@@ -1,3 +1,7 @@
+## Version 0.7.1
+
+* Using queue for crawl urls and result.
+
 ## Version 0.7.0
 
 * Changed name of module

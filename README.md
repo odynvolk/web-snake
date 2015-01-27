@@ -16,8 +16,14 @@ python setup.py install
 ``` python
 from web_snake.crawler import Crawler
 
-crawler = Crawler(url='http://www.reddit.com/', max_level=3)
+crawl_queue = Queue()
+crawl_queue.put('http://www.reddit.com/')
+
+result_queue = Queue()
+
+crawler = Crawler(crawl_queue=crawl_queue, result_queue=result_queue, max_level=3)
 crawler.start()
 crawler.join()
-crawler.urls
+
+print "Found {number} links...".format(number=result_queue.qsize())
 ```

@@ -23,17 +23,17 @@ headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.1 (KHTML
 
 
 class Crawler(threading.Thread):
-    def __init__(self, queue, max_level):
+    def __init__(self, crawl_queue, result_queue, max_level):
         threading.Thread.__init__(self)
         self.accessed = set()
-        self.queue = queue
+        self.crawl_queue = crawl_queue
+        self.result_queue = result_queue
         self.max_level = max_level
-        self.urls = []
 
     def run(self):
-        while not self.queue.empty():
-            self.urls.extend(self.crawl(self.queue.get(), self.max_level))
-            self.queue.task_done()
+        while not self.crawl_queue.empty():
+            self.crawl(self.crawl_queue.get(), self.max_level)
+            self.crawl_queue.task_done()
 
     def crawl(self, url, max_level):
         cleaned_url = self.clean(url)
@@ -42,8 +42,6 @@ class Crawler(threading.Thread):
 
         self.accessed.add(cleaned_url)
 
-        result = set()
-
         try:
             req = requests.get(cleaned_url, headers=headers, timeout=30)
             if req.status_code != 200:
@@ -51,17 +49,15 @@ class Crawler(threading.Thread):
 
             links = link_re.findall(req.text)
             if links and isinstance(links, collections.Iterable):
-                [result.add(self.clean(urlparse.urljoin(cleaned_url, link))) for link in links]
+                [self.result_queue.put(self.clean(urlparse.urljoin(cleaned_url, link))) for link in links]
 
                 for link in links:
                     link = urlparse.urljoin(cleaned_url, link)
                     inner_result = self.crawl(link, max_level - 1)
                     if inner_result:
-                        [result.add(self.clean(inner_link)) for inner_link in inner_result]
+                        [self.result_queue.put(self.clean(inner_link)) for inner_link in inner_result]
         except:
             pass
-
-        return result
 
     def clean(self, url):
         idx = url.find('#')

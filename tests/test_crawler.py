@@ -10,34 +10,46 @@ class TestCrawler(unittest.TestCase):
 
     def test_clean(self):
         q = Queue()
-        crawler = Crawler(q, 3)
+        crawler = Crawler(crawl_queue=q, result_queue=q, max_level=0)
 
         self.assertEqual(crawler.clean('http://www.google.com|2'), 'http://www.google.com')
         self.assertEqual(crawler.clean('http://www.google.com#dfgdfg'), 'http://www.google.com')
 
     @vcr.use_cassette('fixtures/vcr_cassettes/crawl_max_level_1.yaml')
     def test_crawl_with_max_level_1(self):
-        q = Queue()
-        q.put('http://dppiwapikalipasir.org/halkomentar-153-1469.html')
-        crawler = Crawler(q, 1)
+        crawl_queue = Queue()
+        crawl_queue.put('http://dppiwapikalipasir.org/halkomentar-153-1469.html')
+
+        result_queue = Queue()
+
+        crawler = Crawler(crawl_queue=crawl_queue, result_queue=result_queue, max_level=1)
         crawler.start()
         crawler.join()
-        self.assertTrue(len(crawler.urls) >= 2)
+
+        self.assertTrue(result_queue.qsize() >= 2)
 
     @vcr.use_cassette('fixtures/vcr_cassettes/crawl_max_level_2.yaml')
     def test_crawl_with_max_level_2(self):
-        q = Queue()
-        q.put('http://dppiwapikalipasir.org/halkomentar-153-1469.html')
-        crawler = Crawler(q, 2)
+        crawl_queue = Queue()
+        crawl_queue.put('http://dppiwapikalipasir.org/halkomentar-153-1469.html')
+
+        result_queue = Queue()
+
+        crawler = Crawler(crawl_queue=crawl_queue, result_queue=result_queue, max_level=2)
         crawler.start()
         crawler.join()
-        self.assertTrue(len(crawler.urls) >= 100)
+
+        self.assertTrue(result_queue.qsize() >= 100)
 
     @vcr.use_cassette('fixtures/vcr_cassettes/crawl_max_level_3.yaml')
     def test_crawl_with_max_level_3(self):
-        q = Queue()
-        q.put('http://dppiwapikalipasir.org/halkomentar-153-1469.html')
-        crawler = Crawler(q, 3)
+        crawl_queue = Queue()
+        crawl_queue.put('http://dppiwapikalipasir.org/halkomentar-153-1469.html')
+
+        result_queue = Queue()
+
+        crawler = Crawler(crawl_queue=crawl_queue, result_queue=result_queue, max_level=3)
         crawler.start()
         crawler.join()
-        self.assertTrue(len(crawler.urls) >= 1000)
+
+        self.assertTrue(result_queue.qsize() >= 1000)
