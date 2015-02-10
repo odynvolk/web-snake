@@ -16,7 +16,7 @@ def ssl_wrap(func):
 
 ssl.wrap_socket = ssl_wrap(ssl.wrap_socket)
 
-link_re = re.compile(r'<a href="(.*?)"')
+link_re = re.compile(r'<a\s*.*href="(.*?)"')
 
 headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/21.0.1180.89 Safari/537.1',
            'Accept': 'text/plain'}
@@ -32,12 +32,19 @@ class Crawler(threading.Thread):
 
     def run(self):
         while not self.crawl_queue.empty():
-            self.crawl(self.crawl_queue.get(), self.max_level)
+            url = self.crawl_queue.get()
+
+            print "Doing: " + url.decode('utf-8', 'ignore')
+
+            self.crawl(url, self.max_level)
             self.crawl_queue.task_done()
 
     def crawl(self, url, max_level):
+        if max_level == 0:
+            return
+
         cleaned_url = self.clean(url)
-        if max_level == 0 or cleaned_url in self.accessed:
+        if cleaned_url in self.accessed:
             return
 
         self.accessed.add(cleaned_url)
@@ -62,10 +69,10 @@ class Crawler(threading.Thread):
     def clean(self, url):
         idx = url.find('#')
         if idx > 0:
-            return url[0:idx]
+            return url[:idx]
 
         idx = url.find('|')
         if idx > 0:
-            return url[0:idx]
+            return url[:idx]
 
         return url

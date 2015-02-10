@@ -53,3 +53,16 @@ class TestCrawler(unittest.TestCase):
         crawler.join()
 
         self.assertTrue(result_queue.qsize() >= 1000)
+
+    @vcr.use_cassette('fixtures/vcr_cassettes/crawl_a_page_with_different_type_of_links.yaml')
+    def test_crawl_a_page_with_different_type_of_links(self):
+        crawl_queue = Queue()
+        crawl_queue.put('http://www.dn.se/')
+
+        result_queue = Queue()
+
+        crawler = Crawler(crawl_queue=crawl_queue, result_queue=result_queue, max_level=1)
+        crawler.start()
+        crawler.join()
+
+        self.assertTrue(result_queue.qsize() >= 400)

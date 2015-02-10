@@ -2,7 +2,7 @@
 from setuptools import setup, find_packages
 
 setup(name="web-snake",
-      version="0.6.0",
+      version="0.7.1",
       description="A simple web crawler in Python that crawls and returns the urls.",
       author="Alexi Rahman",
       author_email="alexi.rahman@r76.se",
