@@ -20,13 +20,13 @@ class TestCrawler(unittest.TestCase):
         crawl_queue = Queue()
         crawl_queue.put('http://dppiwapikalipasir.org/halkomentar-153-1469.html')
 
-        result_queue = Queue()
+        result_queue = set()
 
         crawler = Crawler(crawl_queue=crawl_queue, result_queue=result_queue, max_level=1)
         crawler.start()
         crawler.join()
 
-        self.assertTrue(result_queue.qsize() >= 2)
+        self.assertTrue(len(result_queue) >= 2)
 
     @vcr.use_cassette('fixtures/vcr_cassettes/crawl_max_level_2.yaml')
     def test_crawl_with_max_level_2(self):
