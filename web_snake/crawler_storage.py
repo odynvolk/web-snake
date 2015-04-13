@@ -1,3 +1,4 @@
+from datetime import datetime
 from pymongo import MongoClient
 
 
@@ -10,10 +11,10 @@ class CrawlerStorage(object):
         self.db.crawled_urls.count()
 
     def insert(self, url):
-        self.db.crawled_urls.insert({'url': url})
+        self.db.crawled_urls.insert({'url': url, 'last_visited': datetime.now()})
 
     def update(self, url):
-        self.db.crawled_urls.update({'url': url}, {'url': url}, upsert=True)
+        self.db.crawled_urls.update({'url': url}, {'url': url, 'last_visited': datetime.now()}, upsert=True)
 
     def find(self, url):
         result = self.db.crawled_urls.find({'url': url})
