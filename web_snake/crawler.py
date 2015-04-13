@@ -27,11 +27,11 @@ session = FuturesSession(max_workers=10)
 
 
 class Crawler(threading.Thread):
-    def __init__(self, crawl_queue, result_queue, max_level, proxies=None):
+    def __init__(self, crawl_queue, result, crawled=None, max_level=3, proxies=None):
         threading.Thread.__init__(self)
-        self.accessed = set()
         self.crawl_queue = crawl_queue
-        self.result_queue = result_queue
+        self.crawled = crawled
+        self.result = result
         self.max_level = max_level
         self.proxies = proxies
 
@@ -49,16 +49,14 @@ class Crawler(threading.Thread):
             return
 
         cleaned_url = self.clean(url)
-        if cleaned_url in self.accessed:
+        if self.crawled.find(cleaned_url):
+            print "Skipped: " + cleaned_url.decode('utf-8', 'ignore')
             return
 
-        self.accessed.add(cleaned_url)
+        self.crawled.update(cleaned_url)
 
         try:
-            if self.proxies:
-                proxy = {'http': random.choice(self.proxies)}
-            else:
-                proxy = {}
+            proxy = {'http': random.choice(self.proxies)} if self.proxies else {}
 
             res = session.get(cleaned_url, headers=headers, timeout=30, proxies=proxy)
 
@@ -76,7 +74,7 @@ class Crawler(threading.Thread):
                     if inner_result:
                         inner_links.expand([self.clean(inner_link) for inner_link in inner_result])
 
-                self.result_queue.put(inner_links)
+                self.result.put(inner_links)
         except:
             # print traceback.format_exc()
             pass

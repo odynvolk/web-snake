@@ -1,3 +1,7 @@
+## Version 1.0.0
+
+* Using PyMongo and MongoDB for storing crawled URLs.
+
 ## Version 0.7.1
 
 * Using queue for crawl urls and result.
