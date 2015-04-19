@@ -49,7 +49,7 @@ class Crawler(threading.Thread):
             return
 
         cleaned_url = self.clean(url)
-        if self.crawled.find(cleaned_url):
+        if self.crawled.find_one_by_hash(cleaned_url):
             # print "Skipped: " + cleaned_url.decode('utf-8', 'ignore')
             return
 

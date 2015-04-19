@@ -19,5 +19,12 @@ class TestCrawlerStorage(unittest.TestCase):
         self.storage.update('http://www.expressen.se/')
         self.assertEqual(1, len(self.storage.find('http://www.expressen.se/')))
 
+    def test_find_one_by_hash(self):
+        self.storage.update('http://www.xyz.com/')
+        self.assertIsNotNone(self.storage.find_one_by_hash('http://www.xyz.com/'))
+
+    def test_dont_find_one_by_hash(self):
+        self.assertIsNone(self.storage.find_one_by_hash('http://www.zyx.com/'))
+
     def tearDown(self):
         self.storage.remove_all()

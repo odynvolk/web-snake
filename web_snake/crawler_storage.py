@@ -1,4 +1,5 @@
 from datetime import datetime
+import hashlib
 from pymongo import MongoClient
 
 
@@ -11,10 +12,14 @@ class CrawlerStorage(object):
         self.db.crawled_urls.count()
 
     def insert(self, url):
-        self.db.crawled_urls.insert({'url': url, 'last_visited': datetime.now()})
+        self.db.crawled_urls.insert({'url': url, 'hash': hashlib.md5(url).hexdigest(), 'last_visited': datetime.now()})
 
     def update(self, url):
-        self.db.crawled_urls.update({'url': url}, {'url': url, 'last_visited': datetime.now()}, upsert=True)
+        self.db.crawled_urls.update({'url': url},
+                                    {'url': url,
+                                     'hash': hashlib.md5(url).hexdigest(),
+                                     'last_visited': datetime.now()},
+                                    upsert=True)
 
     def find(self, url):
         result = self.db.crawled_urls.find({'url': url})
@@ -24,6 +29,9 @@ class CrawlerStorage(object):
 
     def find_one(self, url):
         return self.db.crawled_urls.find_one({'url': url})
+
+    def find_one_by_hash(self, url):
+        return self.db.crawled_urls.find_one({'hash': hashlib.md5(url).hexdigest()})
 
     def remove_all(self):
         self.db.crawled_urls.remove({})
