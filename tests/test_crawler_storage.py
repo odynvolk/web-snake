@@ -7,11 +7,12 @@ class TestCrawlerStorage(unittest.TestCase):
         self.storage = CrawlerStorage('test_web_snake')
 
     def test_return_none_when_not_found(self):
-        self.assertIsNone(self.storage.find('http://www.gazeta.ru/'))
+        self.assertIsNone(self.storage.find_one('http://www.gazeta.ru/'))
 
     def test_read_and_write(self):
         self.storage.update('http://www.dn.se/')
-        self.assertIsNotNone(self.storage.find('http://www.dn.se/'))
+        self.assertIsNotNone(self.storage.find_one('http://www.dn.se/'))
+        self.assertIsNone(self.storage.find_one('http://www.dn.se/d'))
 
     def test_dont_add_duplicates(self):
         self.storage.update('http://www.expressen.se/')

@@ -50,7 +50,7 @@ class Crawler(threading.Thread):
 
         cleaned_url = self.clean(url)
         if self.crawled.find(cleaned_url):
-            print "Skipped: " + cleaned_url.decode('utf-8', 'ignore')
+            # print "Skipped: " + cleaned_url.decode('utf-8', 'ignore')
             return
 
         self.crawled.update(cleaned_url)

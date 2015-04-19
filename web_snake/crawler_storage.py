@@ -22,5 +22,8 @@ class CrawlerStorage(object):
             return [url for url in result]
         return None
 
+    def find_one(self, url):
+        return self.db.crawled_urls.find_one({'url': url})
+
     def remove_all(self):
         self.db.crawled_urls.remove({})
