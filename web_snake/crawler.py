@@ -1,4 +1,3 @@
-import random
 import re
 import traceback
 import urlparse
@@ -56,7 +55,7 @@ class Crawler(threading.Thread):
         self.crawled.update(cleaned_url)
 
         try:
-            proxy = {'http': random.choice(self.proxies)} if self.proxies else {}
+            proxy = {'http': self.proxies.random()} if self.proxies else {}
 
             res = session.get(cleaned_url, headers=headers, timeout=30, proxies=proxy)
 
