@@ -3,7 +3,7 @@ import hashlib
 from pymongo import MongoClient
 
 
-class CrawlerStorage(object):
+class UrlStorage(object):
     def __init__(self, database_name='web_snake'):
         self.client = MongoClient()
         self.db = self.client[database_name]

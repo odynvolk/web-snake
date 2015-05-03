@@ -1,10 +1,10 @@
 import unittest
-from web_snake.crawler_storage import CrawlerStorage
+from web_snake.url_storage import UrlStorage
 
 
-class TestCrawlerStorage(unittest.TestCase):
+class TestUrlStorage(unittest.TestCase):
     def setUp(self):
-        self.storage = CrawlerStorage('test_web_snake')
+        self.storage = UrlStorage('test_web_snake')
 
     def test_return_none_when_not_found(self):
         self.assertIsNone(self.storage.find_one('http://www.gazeta.ru/'))

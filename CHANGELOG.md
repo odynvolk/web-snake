@@ -1,3 +1,7 @@
+## Version 1.1.0
+
+* Using PyMongo and MongoDB for storing crawled domains.
+
 ## Version 1.0.0
 
 * Using PyMongo and MongoDB for storing crawled URLs.

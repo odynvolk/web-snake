@@ -1,21 +1,25 @@
 from Queue import Queue
 import unittest
 import vcr
-from web_snake.crawler import Crawler
-from web_snake.crawler_storage import CrawlerStorage
+from web_snake.crawler import Crawler, parse_domain, clean_url
+from web_snake.domain_storage import DomainStorage
+from web_snake.url_storage import UrlStorage
 from web_snake.result_set import ResultSet
 
 
 class TestCrawler(unittest.TestCase):
     def setUp(self):
-        self.storage = CrawlerStorage('test_web_snake')
+        self.urls = UrlStorage('test_web_snake')
+        self.domains = DomainStorage('test_web_snake')
 
     def test_clean(self):
-        q = Queue()
-        crawler = Crawler(crawl_queue=q, result=q, crawled=self.storage, max_level=0)
+        self.assertEqual(clean_url('http://www.google.com|2'), 'http://www.google.com')
+        self.assertEqual(clean_url('http://www.google.com#dfgdfg'), 'http://www.google.com')
 
-        self.assertEqual(crawler.clean('http://www.google.com|2'), 'http://www.google.com')
-        self.assertEqual(crawler.clean('http://www.google.com#dfgdfg'), 'http://www.google.com')
+    def test_filter_domain(self):
+        self.assertEqual('http://www.whatever.com/', parse_domain('http://www.whatever.com/haha/haha'))
+        self.assertEqual('http://www.whatever.com/', parse_domain('http://www.whatever.com/haha/haha?a=1'))
+        self.assertEqual('http://www.whatever.com/', parse_domain('http://www.whatever.com/?a=1'))
 
     @vcr.use_cassette('fixtures/vcr_cassettes/crawl_max_level_1.yaml')
     def test_crawl_with_max_level_1(self):
@@ -24,9 +28,10 @@ class TestCrawler(unittest.TestCase):
 
         result = ResultSet()
 
-        crawler = Crawler(crawl_queue=crawl_queue, result=result, crawled=self.storage, max_level=1)
+        crawler = Crawler(crawl_queue=crawl_queue, result=result, urls=self.urls, max_level=1)
         crawler.start()
         crawler.join()
+
         self.assertTrue(len(result.all()) >= 2)
 
     @vcr.use_cassette('fixtures/vcr_cassettes/crawl_max_level_2.yaml')
@@ -36,7 +41,7 @@ class TestCrawler(unittest.TestCase):
 
         result = ResultSet()
 
-        crawler = Crawler(crawl_queue=crawl_queue, result=result, crawled=self.storage, max_level=2)
+        crawler = Crawler(crawl_queue=crawl_queue, result=result, urls=self.urls, max_level=2)
         crawler.start()
         crawler.join()
 
@@ -49,7 +54,7 @@ class TestCrawler(unittest.TestCase):
 
         result = ResultSet()
 
-        crawler = Crawler(crawl_queue=crawl_queue, result=result, crawled=self.storage, max_level=3)
+        crawler = Crawler(crawl_queue=crawl_queue, result=result, urls=self.urls, max_level=3)
         crawler.start()
         crawler.join()
 
@@ -62,11 +67,25 @@ class TestCrawler(unittest.TestCase):
 
         result = ResultSet()
 
-        crawler = Crawler(crawl_queue=crawl_queue, result=result, crawled=self.storage, max_level=1)
+        crawler = Crawler(crawl_queue=crawl_queue, result=result, urls=self.urls, max_level=1)
         crawler.start()
         crawler.join()
 
         self.assertTrue(len(result.all()) >= 100)
 
+    @vcr.use_cassette('fixtures/vcr_cassettes/only_return_one_url_per_domain.yaml')
+    def test_only_return_five_url_per_domain(self):
+        crawl_queue = Queue()
+        crawl_queue.put('https://www.pinterest.com/')
+
+        result = ResultSet()
+
+        crawler = Crawler(crawl_queue=crawl_queue, result=result, domains=self.domains, max_urls_per_domain=5, urls=self.urls, max_level=1)
+        crawler.start()
+        crawler.join()
+
+        self.assertTrue(len(result.all()) == 5)
+
     def tearDown(self):
-        self.storage.remove_all()
+        self.urls.remove_all()
+        self.domains.remove_all()
