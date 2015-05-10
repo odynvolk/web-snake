@@ -106,6 +106,7 @@ class Crawler(threading.Thread):
 
     def filter_urls(self, urls):
         result = []
+        increment_domains = []
         domains = [parse_domain(url) for url in urls]
         urls_for_domains = self.domains.urls_for_domains(domains)
 
@@ -113,6 +114,8 @@ class Crawler(threading.Thread):
             domain = domains[idx]
             if urls_for_domains[domain] < self.max_urls_per_domain:
                 result.append(url)
-                self.domains.inc(domain)
+                increment_domains.append(domain)
+
+        self.domains.inc(increment_domains)
 
         return result

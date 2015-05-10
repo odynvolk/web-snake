@@ -9,10 +9,14 @@ class DomainStorage(object):
     def count(self):
         self.db.crawled_domains.count()
 
-    def inc(self, domain):
-        self.db.crawled_domains.update({'domain': domain},
-                                       {"$inc": {"urls": 1}},
-                                       upsert=True)
+    def inc(self, domains):
+        if not domains:
+            return
+
+        bulkop = self.db.crawled_domains.initialize_ordered_bulk_op()
+        for domain in domains:
+            bulkop.find({'domain': domain}).upsert().update({"$inc": {"urls": 1}})
+        bulkop.execute()
 
     def urls_for_domains(self, domains):
         result = {}
