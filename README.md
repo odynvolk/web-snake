@@ -10,10 +10,17 @@ If you have downloaded the source code:
 python setup.py install
 ```
 
+Create indexes on both collections in MongoDB.
+
+``` 
+use web_snake
+db.crawled_urls.createIndex( { "hash" : 1 } )
+db.crawled_domains.createIndex( { "domain" : 1 } )
+```
 
 ## python
 
-``` python
+```python
 from Queue import Queue
 from web_snake.crawler import Crawler
 from web_snake.proxies import Proxies
@@ -36,5 +43,5 @@ crawler = Crawler(crawl_queue=crawl_queue, result=result, domains=domains, urls=
 crawler.start()
 crawler.join()
 
-print "Found {number} links...".format(number=result_queue.qsize())
+print "Found {number} links...".format(number=len(result.all())
 ```
