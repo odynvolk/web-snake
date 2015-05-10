@@ -11,15 +11,19 @@ class DomainStorage(object):
 
     def inc(self, domain):
         self.db.crawled_domains.update({'domain': domain},
-                                        {"$inc": {"urls": 1}},
-                                        upsert=True)
+                                       {"$inc": {"urls": 1}},
+                                       upsert=True)
 
-    def urls_for_domain(self, domain):
-        res = self.db.crawled_domains.find_one({'domain': domain})
-        if res:
-            return res['urls']
+    def urls_for_domains(self, domains):
+        result = {}
+        for re in self.db.crawled_domains.find({'domain': {"$in": domains}}):
+            result[re['domain']] = re['urls']
 
-        return 0
+        for domain in domains:
+            if not domain in result:
+                result[domain] = 0
+
+        return result
 
     def remove_all(self):
         self.db.crawled_domains.remove({})

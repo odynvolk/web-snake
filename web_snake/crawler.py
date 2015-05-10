@@ -58,7 +58,6 @@ class Crawler(threading.Thread):
     def run(self):
         while not self.crawl_queue.empty():
             url = self.crawl_queue.get()
-
             print "Doing: " + url.decode('utf-8', 'ignore')
 
             self.crawl(url, self.max_level)
@@ -73,7 +72,8 @@ class Crawler(threading.Thread):
             # print "Skipped: " + cleaned_url.decode('utf-8', 'ignore')
             return
 
-        if self.domains and self.domains.urls_for_domain(parse_domain(cleaned_url)) >= self.max_urls_per_domain:
+        domain = parse_domain(cleaned_url)
+        if self.domains and self.domains.urls_for_domains([domain])[domain] >= self.max_urls_per_domain:
             return
 
         self.urls.update(cleaned_url)
@@ -106,9 +106,12 @@ class Crawler(threading.Thread):
 
     def filter_urls(self, urls):
         result = []
-        for url in urls:
-            domain = parse_domain(url)
-            if self.domains.urls_for_domain(domain) < self.max_urls_per_domain:
+        domains = [parse_domain(url) for url in urls]
+        urls_for_domains = self.domains.urls_for_domains(domains)
+
+        for idx, url in enumerate(urls):
+            domain = domains[idx]
+            if urls_for_domains[domain] < self.max_urls_per_domain:
                 result.append(url)
                 self.domains.inc(domain)
 

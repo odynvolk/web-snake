@@ -73,18 +73,21 @@ class TestCrawler(unittest.TestCase):
 
         self.assertTrue(len(result.all()) >= 100)
 
-    @vcr.use_cassette('fixtures/vcr_cassettes/only_return_one_url_per_domain.yaml')
-    def test_only_return_five_url_per_domain(self):
+    @vcr.use_cassette('fixtures/vcr_cassettes/dont_crawl_more_pages_if_max_reached_on_page.yaml')
+    def test_dont_crawl_more_pages_if_max_reached_on_page(self):
         crawl_queue = Queue()
         crawl_queue.put('https://www.pinterest.com/')
+        crawl_queue.put('https://www.pinterest.com/jyldbd2/')
+        crawl_queue.put('https://www.pinterest.com/class2290/')
 
         result = ResultSet()
 
-        crawler = Crawler(crawl_queue=crawl_queue, result=result, domains=self.domains, max_urls_per_domain=5, urls=self.urls, max_level=1)
+        crawler = Crawler(crawl_queue=crawl_queue, result=result, domains=self.domains, max_urls_per_domain=5,
+                          urls=self.urls, max_level=2)
         crawler.start()
         crawler.join()
-
-        self.assertTrue(len(result.all()) == 5)
+        self.assertTrue(len(result.all()) == 90)
+        self.assertEqual(21, self.domains.urls_for_domains(['https://www.pinterest.com/'])['https://www.pinterest.com/'])
 
     def tearDown(self):
         self.urls.remove_all()
